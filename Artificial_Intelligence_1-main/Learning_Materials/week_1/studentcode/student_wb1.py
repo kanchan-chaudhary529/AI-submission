@@ -12,20 +12,17 @@ def exhaustive_search_4tumblers(puzzle: CombinationProblem) -> list:
     my_attempt = CandidateSolution()
     
     # ====> insert your code below here
-
-     for i in range(10):  
-        for j in range(10):  
-            for k in range(10):  
-                for l in range(10):  
-                  
-                    my_attempt.variable_values = [i, j, k, l]
-                    
-               
-                    score = puzzle.evaluate(my_attempt.variable_values)
-
-                    if score == 4:
-                        return [i, j, k, l]
-    
+    for digit1 in puzzle.value_set:
+        for digit2 in puzzle.value_set:
+            for digit3 in puzzle.value_set:
+                for digit4 in puzzle.value_set:
+                    my_attempt.variable_values = [digit1, digit2, digit3, digit4]
+                    try:
+                        result = puzzle.evaluate(my_attempt.variable_values)
+                        if result == 1:
+                            return my_attempt.variable_values
+                    except:
+                        pass
 
     # <==== insert your code above here
     
@@ -35,9 +32,10 @@ def exhaustive_search_4tumblers(puzzle: CombinationProblem) -> list:
 def get_names(namearray: np.ndarray) -> list:
     family_names = []
     # ====> insert your code below here
-     for name in namearray:
-        family_names.append(name[-6:])
-        
+
+    for i in range(namearray.shape[0]):
+        surname_chars = namearray[i, -6:]
+        family_names.append("".join(surname_chars))
     
     # <==== insert your code above here
     return family_names
@@ -50,35 +48,29 @@ def check_sudoku_array(attempt: np.ndarray) -> int:
 
 
     # use assertions to check that the array has 2 dimensions each of size 9
-    assert attempt.ndim == 2, "Array must have 2 dimensions"
-    assert attempt.shape == (9, 9), "Array must be of size 9x9"
+    assert attempt.shape == (9, 9), "Array must be 9x9"
     
-     for row in attempt:
-        slices.append(row)
-
-     for col in attempt.T:  
-        slices.append(col)
-
-        for i in range(0, 9, 3):  
-        for j in range(0, 9, 3):
-            subgrid = attempt[i:i+3, j:j+3].flatten() 
-            slices.append(subgrid)
-
-
     ## Remember all the examples of indexing above
     ## and use the append() method to add something to a list
+    for i in range(9):
+        row = attempt[i, :]
+        slices.append(row)
+
+    for j in range(9):
+        col = attempt[:,j]
+        slices.append(col)
+    
+    for i in range(0,9,3):
+        for j in range(0,9,3):
+            box = attempt[i:i+3, j:j+3]
+            slices.append(box.flatten())
+
+    
 
     for slice in slices:  # easiest way to iterate over list
-        pass
-        # print(slice) - useful for debugging?
-
-        # get number of unique values in slice
-          unique_values = np.unique(slice)
-
-        # increment value of tests_passed as appropriate
-        if len(unique_values) == 9:
-            tests_passed += 1
-    
+        if len(np.unique(slice)) == 9:  # get number of unique values in slice
+            tests_passed += 1  # increment value of tests_passed as appropriate
+        
     # <==== insert your code above here
     # return count of tests passed
     return tests_passed
