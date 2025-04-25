@@ -28,12 +28,9 @@ class DepthFirstSearch(SingleMemberSearch):
 
         # ====> insert your pseudo-code and code below here
         if not self.open_list:
-            raise Exception("Open list is empty, no solution found.")
-
-        next _soln = self.open_list.pop()
-
-        self.closed_list.append(next_soln)
-
+            return None
+        
+        next_soln = self.open_list.pop()
         # <==== insert your pseudo-code and code above here
         return next_soln
 
@@ -59,11 +56,10 @@ class BreadthFirstSearch(SingleMemberSearch):
         next_soln = CandidateSolution()
 
         # ====> insert your pseudo-code and code below here
-        if self.open_list:
-            next_soln = self.open_list.pop(0)
-            self.closed_list.append(next_soln)
-            next_soln.expand()
-            self.open_list.extend(next_soln.children)
+        if not self.open_list:
+            return None
+        
+        next_soln = self.open_list.pop(0)
         # <==== insert your pseudo-code and code above here
         return next_soln
 
@@ -86,36 +82,15 @@ class BestFirstSearch(SingleMemberSearch):
         next_soln = CandidateSolution()
 
         # ====> insert your pseudo-code and code below here
-        self.closedlist.append(next_soln)
-        for child in next_soln.children:
-            if child not in self.closedlist:
-                self.openlist.append(child)
-        # <==== insert your pseudo-code and code above here
-        return next_soln
-
-class BestFirstSearch(SingleMemberSearch):
-    """Implementation of Best-First search."""
-
-    def __str__(self):
-        return "best-first"
-
-    def select_and_move_from_openlist(self) -> CandidateSolution:
-        """Implements Best First by finding, popping and returning member from openlist
-        with best quality.
-
-        Returns
-        -------
-        next working candidate (solution) taken from openlist
-        """
-
-        # create a candidate solution variable to hold the next solution
-        next_soln = CandidateSolution()
-
-        # ====> insert your pseudo-code and code below here
-        self.closedlist.append(next_soln)
-        for child in next_soln.children:
-            if child not in self.closedlist:
-                self.openlist.append(child)
+        if not self.open_list:
+            return None
+        
+        best_index = 0
+        for i in range(len(self.open_list)):
+            if self.open_list[i].quality < self.open_list[best_index].quality:
+                best_index = i
+                
+        next_soln = self.open_list.pop(best_index)
         # <==== insert your pseudo-code and code above here
         return next_soln
 
@@ -138,10 +113,19 @@ class AStarSearch(SingleMemberSearch):
         next_soln = CandidateSolution()
 
         # ====> insert your pseudo-code and code below here
-        self.closedlist.append(next_soln)
-        for child in next_soln.expand:
-            if child not in self.closedlist:
-                self.openlist.append(child)
+        if not self.open_list:
+            return None
+        
+        best_index = 0
+        best_score = len(self.open_list[0].variable_values) + self.open_list[0].quality
+        for i in range(len(self.open_list)):
+            current_score = len(self.open_list[i].variable_values) + self.open_list[i].quality
+            if current_score < best_score:
+                best_index = i
+                best_score = current_score
+                
+        next_soln = self.open_list.pop(best_index)
+        
         # <==== insert your pseudo-code and code above here
         return next_soln
 wall_colour= 0.0
@@ -150,56 +134,40 @@ hole_colour = 1.0
 def create_maze_breaks_depthfirst():
     # ====> insert your code below here
     #remember to comment out any mention of show_maze() before you submit your work
-    import random
+    maze = Maze(mazefile="maze.txt")
 
-    def carve_passage(x,y,maze,wall_colour,hole_colour):
-        maze.contents[y][x] = hole_colour
-        directions = [(0,1),(0,-1),(1,0),(-1,0)]
-        random.shuffle(directions)
-        for dx,dy in directions:
-            if maze.contents[y+dy][x+dx] == wall_colour:
-                carve_passage(x+dx,y+dy,maze,wall_colour,hole_colour)
+    maze.contents[3][4] = hole_colour  # this is Open path to trick DFS
+    maze.contents[8][4] = wall_colour  # this is Block DFS at the end
+
+    maze.contents[10][6] = hole_colour  # this is Another DFS trap
+    maze.contents[14][6] = wall_colour  # these are  Dead-ends
+    maze.contents[16][1] = hole_colour  
+    maze.contents[19][4] = hole_colour  
+
+    maze.contents[8][1] = hole_colour
+    maze.contents[12][9] = wall_colour
+    maze.contents[11][12] = wall_colour
+    maze.contents[9][2] = wall_colour
+    maze.contents[10][19] = wall_colour
+    maze.contents[18][5] = wall_colour
+    
+    
+
+    
+    # Save the maze
+    maze.save_to_txt("maze-breaks-depth.txt")
     # <==== insert your code above here
 
 def create_maze_depth_better():
     # ====> insert your code below here
     #remember to comment out any mention of show_maze() before you submit your work
-import random
-    import numpy as np
-
-    # Maze dimensions
-    rows, cols = 10, 10  # Adjust size as needed
-    maze = np.ones((rows, cols), dtype=int)  # 1 represents walls
     
-    # Initialize the stack and visited set
-    stack = []
-    visited = set()
-    
-    # Choose a random starting point and mark it as a passage (0)
-    start_x, start_y = random.randrange(rows), random.randrange(cols)
-    maze[start_x, start_y] = 0
-    stack.append((start_x, start_y))
-    visited.add((start_x, start_y))
-    
-    # Possible movement directions: (row_offset, col_offset)
-    directions = [(0, 2), (0, -2), (2, 0), (-2, 0)]
-    
-    while stack:
-        x, y = stack[-1]
-        random.shuffle(directions)  # Randomize directions to create unique mazes
-        
-        for dx, dy in directions:
-            nx, ny = x + dx, y + dy
-            
-            if 0 <= nx < rows and 0 <= ny < cols and (nx, ny) not in visited:
-                maze[nx, ny] = 0  # Mark as passage
-                maze[x + dx // 2, y + dy // 2] = 0  # Remove wall in between
-                stack.append((nx, ny))
-                visited.add((nx, ny))
-                break
-        else:
-            stack.pop()  # Backtrack when no available moves
-    
-    # return maze for further processing
-    return maze
+    maze = Maze(mazefile="maze.txt")
+    maze.contents[1][8] = wall_colour
+    maze.contents[9][10] = wall_colour
+    maze.contents[15][6] = wall_colour
+    maze.contents[13][2] = wall_colour
+    maze.contents[12][13] = wall_colour
+    maze.contents[2][13] = wall_colour
+    maze.save_to_txt("maze-depth-better.txt")
     # <==== insert your code above here
