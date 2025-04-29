@@ -60,7 +60,7 @@ def cluster_and_visualise(datafile_name:str, K:int, feature_names:list):
                                               edgecolor='black')
                 
     # remember to put your user name into the title as specified
-    fig.suptitle(f"Visualisation of {K} clusters by k-chaudhary", fontsize=16, y=0.925)
+    fig.suptitle(f"Visualisation of {K} clusters by k5-chaudhary", fontsize=16, y=0.925)
 
     # save it to file as specified
     fig.savefig('myVisualisation.jpg')
